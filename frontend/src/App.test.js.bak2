@@ -1,0 +1,9 @@
+  test('renders KPI cards', () => {
+    render(<App />);
+    
+    expect(screen.getByText(/Daily Spend/i)).toBeInTheDocument();
+    expect(screen.getByText(/Est\. ROI/i)).toBeInTheDocument();
+    // Default values show "--"
+    expect(screen.getByText(/--/i)).toBeInTheDocument();
+    expect(screen.getByText(/Decision/i)).toBeInTheDocument();
+  });
