@@ -3,11 +3,22 @@ from rest_framework.response import Response
 from .model_loader import model, scaler, FEATURE_COLS
 import numpy as np
 
-CHANNELS = ["Google", "Facebook", "Instagram"]
+CHANNELS = ["Google", "Facebook", "Instagram", "YouTube", "LinkedIn", "Twitter"]
+ALL_CHANNELS = ["Google", "Facebook", "Instagram", "YouTube", "LinkedIn", "Twitter"]
 
 def prepare_features(spend, days):
     daily_spend = spend / (days + 1)
-    return [spend, days, daily_spend, 0, 0, 0, 0, 0]
+    return [spend, days, daily_spend]
+
+def encode_channel(ch):
+    # drop_first=True → Google is base (all zeros)
+    return [
+        1 if ch == "Facebook" else 0,
+        1 if ch == "Instagram" else 0,
+        1 if ch == "YouTube" else 0,
+        1 if ch == "LinkedIn" else 0,
+        1 if ch == "Twitter" else 0,
+    ]
 
 @api_view(['POST'])
 def predict(request):
@@ -18,13 +29,8 @@ def predict(request):
 
     for ch in CHANNELS:
         features = prepare_features(spend, days)
-
-        if ch == "Google":
-            features[4] = 1
-        elif ch == "Facebook":
-            features[3] = 1
-        else:  # Instagram
-            features[5] = 1
+        channel_vec = encode_channel(ch)
+        features.extend(channel_vec)
 
         X = np.array(features).reshape(1, -1)
         X = scaler.transform(X)
